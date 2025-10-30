@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <header>        
+        <style>
+            /* 1. Reset default browser margins/paddings */
+            html, body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden; /* Prevents scrollbars when filling the screen */
+                width: 100%;
+                height: 100%;
+            }
+            /* 2. Make the canvas container fill the entire body */
+            #canvas {
+                display: block; /* Removes any extra space beneath the canvas */
+                background-color: grey;
+                /* Set canvas display size to 100% of the viewport */
+                width: 100vw; /* 100% of viewport width */
+                height: 100vh; /* 100% of viewport height */
+            }
+        </style>
+
+        <h1 style="text-align: center;">Multiplayer Server Tests</h1>
+        <div>
+            <label>Color:</label>
+            <input id="ColorPicker" type="color">
+        </div>
+        <div>
+            <label>User ID:</label><label id="UserID"></label>
+        </div>
+        <div>
+            <label>Username:</label><input type="text" id="username"></label>
+        </div>
+        <button onclick="Disconnect()">disconnect</button>
+    </header>
+    <body>
+        <div style="height: 100%; width: 100%; position: absolute;">
+            <canvas id="canvas" style="position: relative; width: 100%; height: 100%; background-color: grey;"></canvas>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+        <script src="Input.js"></script>
+        <script src="PlayerLogic.js"></script>
+        <script>
+            // Function to resize canvas drawing buffer and calculate scale
+            function resizeCanvas() {
+                // Set the internal canvas drawing buffer size to match the CSS size
+                // canvas.clientWidth/Height gives the actual pixel size the element is displayed at.
+                canvas.width = canvas.clientWidth;
+                canvas.height = canvas.clientHeight;
+            }
+            // Call the resize function once on load and add a listener for future resizing
+            window.addEventListener('resize', resizeCanvas);
+        </script>     
+    </body>
+</html>
