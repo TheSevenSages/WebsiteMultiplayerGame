@@ -2,24 +2,47 @@
 <html>
     <header>        
         <style>
-            /* 1. Reset default browser margins/paddings */
+/* 1. Reset default browser margins/paddings */
             html, body {
                 margin: 0;
                 padding: 0;
-                overflow: hidden; /* Prevents scrollbars when filling the screen */
                 width: 100%;
                 height: 100%;
+                overflow: hidden; /* Prevents scrollbars */
+                
+                /* **NEW: Enable Flexbox on the body** */
+                display: flex;
+                flex-direction: column;
+
+                /* For the background */
+                background-image: url("BG.jpg");
+                background-size: cover;
             }
-            /* 2. Make the canvas container fill the entire body */
+            
+            /* 2. Header elements take their natural height (flex-shrink: 0) */
+            header {
+                padding: 10px; /* Add some padding for visual separation */
+                flex-shrink: 0; 
+            }
+            
+            /* 3. The canvas wrapper takes ALL remaining space (flex-grow: 1) */
+            #canvas-area-wrapper {
+                flex-grow: 1; /* Takes all remaining vertical space */
+                width: 100%; 
+                height: 100%; 
+                
+                /* **NEW: Use Flexbox to center the canvas inside this area** */
+                display: flex;
+                justify-content: center; /* Center horizontally */
+                align-items: center; /* Center vertically */
+            }
+            
+            /* 4. The canvas itself will be sized by JavaScript to be a square */
             #canvas {
-                display: block; /* Removes any extra space beneath the canvas */
-                background-color: grey;
-                /* Set canvas display size to 100% of the viewport */
-                width: 100vw; /* 100% of viewport width */
-                height: 100vh; /* 100% of viewport height */
+                display: block;
+                /* The actual square dimensions will be set in the JS */
             }
         </style>
-
         <h1 style="text-align: center;">Multiplayer Server Tests</h1>
         <div>
             <label>Color:</label>
@@ -33,22 +56,43 @@
         </div>
     </header>
     <body>
-        <div style="height: 100%; width: 100%; position: absolute;">
-            <canvas id="canvas" style="position: relative; width: 100%; height: 100%; background-color: grey;"></canvas>
+        <div id="canvas-area-wrapper">
+            <canvas id="canvas"></canvas>
         </div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
-        <script src="Input.js"></script>
-        <script src="PlayerLogic.js"></script>
         <script>
+            const canvas = document.getElementById('canvas');
+            const canvas_wrapper = document.getElementById('canvas-area-wrapper');
+            const ctx = canvas.getContext("2d");
             // Function to resize canvas drawing buffer and calculate scale
             function resizeCanvas() {
-                // Set the internal canvas drawing buffer size to match the CSS size
-                // canvas.clientWidth/Height gives the actual pixel size the element is displayed at.
-                canvas.width = canvas.clientWidth;
-                canvas.height = canvas.clientHeight;
+                // // Set the internal canvas drawing buffer size to match the CSS size
+                // // canvas.clientWidth/Height gives the actual pixel size the element is displayed at.
+                // canvas.width = canvas.clientWidth;
+                // canvas.height = canvas.clientHeight;
+                // Get the dimensions of the available drawing area (viewport size)
+                const viewportWidth = canvas_wrapper.clientWidth;
+                const viewportHeight = canvas_wrapper.clientHeight;
+
+                // Determine the limiting dimension (the smaller of the two)
+                const squareSize = Math.min(viewportWidth, viewportHeight);
+
+                // 1. Set the CSS (display) size of the canvas to be a square
+                //    This makes the canvas look square on the screen.
+                canvas.style.width = `${squareSize}px`;
+                canvas.style.height = `${squareSize}px`;
+
+                // 2. Set the internal canvas drawing buffer size (resolution)
+                //    This ensures the canvas content is not stretched.
+                canvas.width = squareSize;
+                canvas.height = squareSize;
             }
             // Call the resize function once on load and add a listener for future resizing
+            resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
         </script>     
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+        <script src="Utils.js"></script>
+        <script src="Input.js"></script>
+        <script src="PlayerLogic.js"></script>
     </body>
 </html>

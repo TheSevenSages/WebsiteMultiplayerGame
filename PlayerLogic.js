@@ -1,8 +1,5 @@
 "use strict";
 
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext("2d");
-
 const user_id = document.getElementById('UserID');
 const username = document.getElementById('username');
 const color_picker = document.getElementById('ColorPicker');
@@ -52,20 +49,31 @@ connection.on("ServerSentUpdate", function (UpdatedPlayers) {
         
         for (var i = 0; i < UpdatedPlayers.length; i++)
         {
-            // Draw Circle
             var player = UpdatedPlayers[i];
+            var pos_x = XPosToScreenSpace(player.position.x + (player.size / 2));
+            var pos_y = YPosToScreenSpace(player.position.y - (player.size / 2));
+            var scale_x = XScaleToScreenSpace(player.size);
+            var scale_y = YScaleToScreenSpace(player.size);
+            // Draw Circle
             ctx.beginPath();
-            ctx.ellipse(player.position.x, player.position.y, 10, 10, 0, 0, 2 * Math.PI);
+            ctx.ellipse(pos_x, pos_y, scale_x, scale_y, 0, 0, 2 * Math.PI);
             ctx.fillStyle = '#' + player.color.toString(16);
             ctx.fill();
+            ctx.lineWidth = XScaleToScreenSpace(1);
             ctx.stroke();
 
-            // Draw ID
-            // --- 1. Set Styles for Filled Text ---
-            ctx.font = 'bold 12pt Arial'
+            var font_size = XScaleToScreenSpace(5);
+            // Draw Username
+            ctx.font = `${font_size}pt Arial`;
             ctx.fillStyle = 'Black';
             ctx.textAlign = 'center';
-            ctx.fillText(player.username, player.position.x, player.position.y);
+            ctx.fillText(player.username, pos_x, pos_y - (scale_y / 2) - (font_size * 2));
+            
+            // Draw Points
+            ctx.font = `${font_size}pt Arial`;
+            ctx.fillStyle = 'Black';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Score: ${player.points}`, pos_x, pos_y - (scale_y / 2) - font_size);
         }
     }
     catch (error)
@@ -91,7 +99,7 @@ function main() {
     if (myself.id != -1)
     {
         // Placing the floor at y level 100, this is gravity
-        if (myself.position.y < 200.0)
+        if (myself.position.y + (myself.size / 2) - velocity.y < 200.0)
         {
             velocity.y -= 9.8 / 60;
         }
@@ -104,11 +112,17 @@ function main() {
         // Handle player input
         if (key_states['d'] == 'JUSTPRESSED' || key_states['d'] == 'HELD')
         {
-            myself.position.x += 2;
+            if (myself.position.x + (myself.size) + 2 < 100)
+            {
+                myself.position.x += 2;
+            }
         }
         if (key_states['a'] == 'JUSTPRESSED' || key_states['a'] == 'HELD')
         {
-            myself.position.x -= 2;
+            if (myself.position.x -2 > -100)
+            {
+                myself.position.x -= 2;
+            }
         }
         if (key_states[' '] == 'JUSTPRESSED' && can_jump)
         {

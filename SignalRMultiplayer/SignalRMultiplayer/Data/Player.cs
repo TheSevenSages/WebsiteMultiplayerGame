@@ -20,6 +20,8 @@ namespace SignalRMultiplayer.Data
         public string username { get; set; }
         public Transform position { get; set; }
         public int color { get; set; }
+        public float size { get; set; }
+        public int points { get; set; }
 
         public Player() 
         {
@@ -27,6 +29,8 @@ namespace SignalRMultiplayer.Data
             username = "Red";
             position = new Transform(0.0f, 0.0f);
             color = 16058127;
+            size = 10.0f;
+            points = 0;
         }
     }
 
