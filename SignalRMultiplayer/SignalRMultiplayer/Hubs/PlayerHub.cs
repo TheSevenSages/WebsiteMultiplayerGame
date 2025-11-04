@@ -6,26 +6,38 @@ namespace SignalRMultiplayer.Hubs
     public class PlayerHub : Hub
     {
         // Lifecycle Functions (GET, PUSH, DELETE)
-        public Task<Player> AddPlayer()
+        public override async Task OnConnectedAsync()
         {
             Player new_player = new Player();
             new_player.id = ++PlayerManager.total_session_players;
 
+            PlayerManager.connection_player_map[Context.ConnectionId] = new_player.id;
             PlayerManager.players.Add(new_player);
 
-            return Task.FromResult(new_player);
+            await Clients.Caller.SendAsync("ConnectionEstablished", new_player);
+
+            await base.OnConnectedAsync();
         }
-
-        public Task<int> RemovePlayerByID(int id)
+        public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var player = PlayerManager.players.Find(x => x.id == id);
-            if (player == null)
+            // Remove player from PlayerManager
+            try
             {
-                throw new HubException($"Failed to delete player with id {id}: player not found");
+                var player_id = PlayerManager.connection_player_map[Context.ConnectionId];
+                var player = PlayerManager.players.Find(x => x.id == player_id);
+                if (player == null)
+                {
+                    throw new HubException($"Failed to delete player with id {player_id}: player not found");
+                }
+                PlayerManager.players.Remove(player);
+                PlayerManager.connection_player_map.Remove(Context.ConnectionId);
             }
-            PlayerManager.players.Remove(player);
+            catch(Exception e) 
+            {
+                Console.Error.WriteLine(e.Message);
+            }
 
-            return Task.FromResult(id);
+            await base.OnDisconnectedAsync(exception);
         }
 
         // Modifier Functions (PUT)

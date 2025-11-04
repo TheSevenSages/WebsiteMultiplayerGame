@@ -24,13 +24,12 @@ var connection = new signalR.HubConnectionBuilder().withUrl(api_url, {
     withCredentials: false
 }).build();
 
-connection.start().then(async function () {
+connection.start();
+connection.on("ConnectionEstablished", async function (message) {
     console.log("Connected to " + api_url);
 
     // Initialize this client's data
-    const response = await connection.invoke("AddPlayer");
-
-    myself = response;
+    myself = message;
 
     // Shallow Copy
     position_prime.x = myself.position.x;
@@ -39,9 +38,6 @@ connection.start().then(async function () {
     user_id.innerHTML = myself.id;
     username.value = myself.username;
     color_picker.value = '#' + myself.color.toString(16);
-
-}).catch(function (err) {
-    return console.error(err.toString());
 });
 
 window.onload = async () => {

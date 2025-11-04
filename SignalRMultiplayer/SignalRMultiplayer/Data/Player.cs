@@ -33,6 +33,8 @@ namespace SignalRMultiplayer.Data
     public class PlayerManager
     {
         public static List<Player> players = new List<Player>();
+        // A map of connection ID's to player ID's so we can keep track of which connection has which ID
+        public static Dictionary<string, int> connection_player_map = new Dictionary<string, int>();
         public static int total_session_players = 0;
     }
 }
