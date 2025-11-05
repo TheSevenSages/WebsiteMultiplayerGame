@@ -40,19 +40,30 @@
             /* 4. The canvas itself will be sized by JavaScript to be a square */
             #canvas {
                 display: block;
+                border-left: 2px solid black;
+                border-bottom: 2px solid black;
+                border-right: 2px solid black;
                 /* The actual square dimensions will be set in the JS */
             }
         </style>
-        <h1 style="text-align: center;">Multiplayer Server Tests</h1>
-        <div>
-            <label>Color:</label>
-            <input id="ColorPicker" type="color">
-        </div>
-        <div>
-            <label>User ID:</label><label id="UserID"></label>
-        </div>
-        <div>
-            <label>Username:</label><input type="text" id="username"></label>
+        <h1 style="text-align: center; margin: 0%;">Coin Grabber</h1>
+        <h3 style="text-align: center; margin: 0%;">Multiplayer Server Tests</h3>
+        <div style="display: block; float: left">
+            <div>
+                <label>Color:</label>
+                <input id="ColorPicker" type="color">
+            </div>
+            <div>
+                <label>User ID:</label><label id="UserID"></label>
+            </div>
+            <div>
+                <label>Username:</label><input type="text" id="username"></label>
+            </div>
+        </div>        
+        <div style="display: block; float: right; text-align: center; font-size: 2vw;">
+            <div>Collect coins to add to your score!</div>
+            <div>Press <b>A</b> and <b>D</b> to move left and right, and press <b>SPACE</b> to jump</div>
+            <div>This game uses online multiplayer! Try it with a friend!</div>
         </div>
     </header>
     <body>
@@ -60,6 +71,8 @@
             <canvas id="canvas"></canvas>
         </div>
         <script>
+            const api_url = "http://localhost:5019/";
+
             const canvas = document.getElementById('canvas');
             const canvas_wrapper = document.getElementById('canvas-area-wrapper');
             const ctx = canvas.getContext("2d");
@@ -94,5 +107,17 @@
         <script src="Utils.js"></script>
         <script src="Input.js"></script>
         <script src="PlayerLogic.js"></script>
+        <script src="CoinLogic.js"></script>
+        <script src="Renderer.js"></script>
+        <script>
+            window.requestAnimationFrame(main);
+            function main()
+            {
+                player_main();
+                coin_main();
+                Render();
+                window.requestAnimationFrame(main);
+            }
+        </script>
     </body>
 </html>

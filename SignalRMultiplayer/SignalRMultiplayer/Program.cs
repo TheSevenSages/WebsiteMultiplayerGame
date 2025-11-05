@@ -33,5 +33,7 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthorization();
 
 app.MapHub<PlayerHub>("/playerHub");
+app.MapHub<CoinHub>("/coinHub");
+app.MapHub<WorldHub>("/worldHub");
 
 app.Run();

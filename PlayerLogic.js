@@ -4,7 +4,7 @@ const user_id = document.getElementById('UserID');
 const username = document.getElementById('username');
 const color_picker = document.getElementById('ColorPicker');
 
-const api_url = "http://localhost:5019/playerHub";
+let all_players = [];
 
 var position_prime = {
     x: 0.0,
@@ -17,12 +17,12 @@ var velocity = {
     y: 0.0
 };
 
-var connection = new signalR.HubConnectionBuilder().withUrl(api_url, {
+var player_connection = new signalR.HubConnectionBuilder().withUrl(api_url + 'playerHub', {
     withCredentials: false
 }).build();
 
-connection.start();
-connection.on("ConnectionEstablished", async function (message) {
+player_connection.start();
+player_connection.on("ConnectionEstablished", async function (message) {
     console.log("Connected to " + api_url);
 
     // Initialize this client's data
@@ -42,39 +42,10 @@ window.onload = async () => {
 };
 
 // We have received an update from the server
-connection.on("ServerSentUpdate", function (UpdatedPlayers) {
+player_connection.on("ServerSentUpdate", function (UpdatedPlayers) {
     try
     {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        for (var i = 0; i < UpdatedPlayers.length; i++)
-        {
-            var player = UpdatedPlayers[i];
-            var pos_x = XPosToScreenSpace(player.position.x + (player.size / 2));
-            var pos_y = YPosToScreenSpace(player.position.y - (player.size / 2));
-            var scale_x = XScaleToScreenSpace(player.size);
-            var scale_y = YScaleToScreenSpace(player.size);
-            // Draw Circle
-            ctx.beginPath();
-            ctx.ellipse(pos_x, pos_y, scale_x, scale_y, 0, 0, 2 * Math.PI);
-            ctx.fillStyle = '#' + player.color.toString(16);
-            ctx.fill();
-            ctx.lineWidth = XScaleToScreenSpace(1);
-            ctx.stroke();
-
-            var font_size = XScaleToScreenSpace(5);
-            // Draw Username
-            ctx.font = `${font_size}pt Arial`;
-            ctx.fillStyle = 'Black';
-            ctx.textAlign = 'center';
-            ctx.fillText(player.username, pos_x, pos_y - (scale_y / 2) - (font_size * 2));
-            
-            // Draw Points
-            ctx.font = `${font_size}pt Arial`;
-            ctx.fillStyle = 'Black';
-            ctx.textAlign = 'center';
-            ctx.fillText(`Score: ${player.points}`, pos_x, pos_y - (scale_y / 2) - font_size);
-        }
+        all_players = UpdatedPlayers;
     }
     catch (error)
     {
@@ -83,7 +54,7 @@ connection.on("ServerSentUpdate", function (UpdatedPlayers) {
 });
 
 // We have received an update request from the server
-connection.on("ServerRequestedUpdate", () => {
+player_connection.on("ServerRequestedUpdate", () => {
     // If player is uninitialized don't send update
     if (myself.id == -1) { return; }
 
@@ -94,12 +65,11 @@ connection.on("ServerRequestedUpdate", () => {
 
 
 var can_jump = false;
-window.requestAnimationFrame(main);
-function main() {
+function player_main() {
     if (myself.id != -1)
     {
         // Placing the floor at y level 100, this is gravity
-        if (myself.position.y + (myself.size / 2) - velocity.y < 200.0)
+        if (myself.position.y + myself.size - velocity.y < world_size)
         {
             velocity.y -= 9.8 / 60;
         }
@@ -112,14 +82,14 @@ function main() {
         // Handle player input
         if (key_states['d'] == 'JUSTPRESSED' || key_states['d'] == 'HELD')
         {
-            if (myself.position.x + (myself.size) + 2 < 100)
+            if (myself.position.x + myself.size < (world_size / 2))
             {
                 myself.position.x += 2;
             }
         }
         if (key_states['a'] == 'JUSTPRESSED' || key_states['a'] == 'HELD')
         {
-            if (myself.position.x -2 > -100)
+            if (myself.position.x - myself.size > -(world_size / 2))
             {
                 myself.position.x -= 2;
             }
@@ -127,7 +97,12 @@ function main() {
         if (key_states[' '] == 'JUSTPRESSED' && can_jump)
         {
             can_jump = false;
-            velocity.y += 5;
+            var jump_vel = myself.size / 2.0;
+            if (jump_vel > 16)
+            {
+                jump_vel = 16;
+            }
+            velocity.y += jump_vel;
         }
 
         // Update position with velocity
@@ -135,7 +110,6 @@ function main() {
 
         UpdateAllKeyStates();
     }
-    window.requestAnimationFrame(main);
 }
 
 // Updates this player's position on the server
@@ -157,7 +131,7 @@ async function UpdateMyPosition()
         {
             throw new Error("Player id is invalid");
         }
-        await connection.invoke("ChangePosition", myself.id, myself.position.x, myself.position.y);
+        await player_connection.invoke("ChangePosition", myself.id, myself.position.x, myself.position.y);
         position_prime.x = myself.position.x;
         position_prime.y = myself.position.y;
     }
@@ -175,7 +149,7 @@ color_picker.addEventListener('change', async (event) => {
             throw new Error("Player id is invalid");
         }
         var new_color = parseInt(color_picker.value.substring(1), 16);
-        await connection.invoke("ChangeColor", myself.id, new_color);
+        await player_connection.invoke("ChangeColor", myself.id, new_color);
     }
     catch (error)
     {
@@ -191,7 +165,7 @@ username.addEventListener('change', async (event) => {
             throw new Error("Player id is invalid");
         }
         var new_username = username.value;
-        await connection.invoke("ChangeDisplayName", myself.id, new_username);
+        await player_connection.invoke("ChangeDisplayName", myself.id, new_username);
     }
     catch (error)
     {

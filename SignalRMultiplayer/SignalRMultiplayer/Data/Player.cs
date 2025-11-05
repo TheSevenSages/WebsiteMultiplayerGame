@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using SignalRMultiplayer.Hubs;
+using System.Numerics;
 
 namespace SignalRMultiplayer.Data
 {
@@ -23,12 +24,13 @@ namespace SignalRMultiplayer.Data
         public float size { get; set; }
         public int points { get; set; }
 
-        public Player() 
+        public Player(int _id) 
         {
-            id = -1;
-            username = "Red";
-            position = new Transform(0.0f, 0.0f);
-            color = 16058127;
+            id = _id;
+            username = $"Grabber #{id}";
+            position = new Transform(0.0f, 0.0F);
+            Random rand = new Random();
+            color = rand.Next(16777215);
             size = 10.0f;
             points = 0;
         }

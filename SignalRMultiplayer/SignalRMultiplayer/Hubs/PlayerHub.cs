@@ -8,8 +8,7 @@ namespace SignalRMultiplayer.Hubs
         // Lifecycle Functions (GET, PUSH, DELETE)
         public override async Task OnConnectedAsync()
         {
-            Player new_player = new Player();
-            new_player.id = ++PlayerManager.total_session_players;
+            Player new_player = new Player(++PlayerManager.total_session_players);
 
             PlayerManager.connection_player_map[Context.ConnectionId] = new_player.id;
             PlayerManager.players.Add(new_player);
