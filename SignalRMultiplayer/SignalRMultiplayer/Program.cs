@@ -1,5 +1,6 @@
 using SignalRMultiplayer.Hubs;
 using SignalRMultiplayer.Services;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,12 @@ builder.Services.AddCors(options =>
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
                       });
+});
+// The server is explicitly configured for HTTP on 8080:
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    // This Listen call defaults to HTTP
+    serverOptions.Listen(IPAddress.Any, 8080);
 });
 
 var app = builder.Build();
