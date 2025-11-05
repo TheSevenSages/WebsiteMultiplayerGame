@@ -29,6 +29,12 @@ namespace SignalRMultiplayer.Hubs
                     // Add the coins value to the player's points, and delete the coin
                     player.points += coin.value;
                     player.size += coin.value / 2.0f;
+                    if (player.points < 0) 
+                    { 
+                        player.points = 0;
+                        player.size = 10.0f;
+                    }
+
                     CoinManager.coins.Remove(coin);
                 }
             }

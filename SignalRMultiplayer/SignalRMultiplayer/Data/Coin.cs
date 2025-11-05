@@ -17,7 +17,7 @@ namespace SignalRMultiplayer.Data
             Random rand = new Random();
             position = new Transform(rand.Next(0, WorldHub.world_size) - (WorldHub.world_size / 2), rand.Next(WorldHub.world_size / 2, WorldHub.world_size));
             color = 16766720;
-            size = 5.0f;
+            size = 15.0f;
             value = 1;
             lifetime = 7.0f;
         }
@@ -47,24 +47,21 @@ namespace SignalRMultiplayer.Data
             if (time_until_next_spawn <= 0.0f)
             {
                 Random rand = new Random();
-                Coin new_coin;
                 if (rand.Next(100) < 15)
                 {
-                    new_coin = new Coin(6591981, 3.0f, 5, 4.0f);
-                    coins.Add(new_coin);
+                    coins.Add(new Coin(6591981, 9.0f, 5, 4.0f));
                 }
                 if (rand.Next(100) < 40)
                 {
-                    new_coin = new Coin(9830425, 4.0f, 3, 6.0f);
-                    coins.Add(new_coin);
+                    coins.Add(new Coin(9830425, 12.0f, 3, 6.0f));
                 }
-                new_coin = new Coin();
-                coins.Add(new_coin);
+                coins.Add(new Coin());
 
                 // Add spikes
                 if (rand.Next(100) < 30)
                 {
-                    new_coin = new Coin(6591981, 6.0f, -100, 10.0f);
+                    Coin new_coin = new Coin(6591981, 20.0f, -100, 10.0f);
+                    new_coin.position = new Transform(rand.Next(0, WorldHub.world_size) - (WorldHub.world_size / 2), rand.Next(WorldHub.world_size / 10, WorldHub.world_size * 2 / 3));
                     coins.Add(new_coin);
                 }
 

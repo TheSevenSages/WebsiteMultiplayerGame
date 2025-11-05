@@ -1,3 +1,11 @@
+const spike_image = new Image();
+var spike_loaded = false;
+spike_image.src = "SpikeBall.png";
+spike_image.onload = function() {
+    spike_loaded = true;
+};
+
+
 function RenderPlayers()
 {
     for (var i = 0; i < all_players.length; i++)
@@ -52,24 +60,32 @@ function RenderCoins()
     for (var i = 0; i < all_coins.length; i++)
         {
             var coin = all_coins[i];
-            var pos_x = XPosToScreenSpace(coin.position.x + (coin.size / 2));
-            var pos_y = YPosToScreenSpace(coin.position.y - (coin.size / 2));
+            var pos_x = XPosToScreenSpace(coin.position.x);
+            var pos_y = YPosToScreenSpace(coin.position.y);
             var scale_x = XScaleToScreenSpace(coin.size);
             var scale_y = YScaleToScreenSpace(coin.size);
-            // Draw Circle
-            ctx.beginPath();
-            ctx.ellipse(pos_x, pos_y, scale_x, scale_y, 0, 0, 2 * Math.PI);
-            ctx.fillStyle = '#' + coin.color.toString(16);
-            ctx.fill();
-            ctx.lineWidth = XScaleToScreenSpace(1);
-            ctx.stroke();
 
-            var font_size = XScaleToScreenSpace(coin.size);
-            // Draw value
-            ctx.font = `${font_size}pt Arial`;
-            ctx.fillStyle = 'Black';
-            ctx.textAlign = 'center';
-            ctx.fillText(coin.value, pos_x, pos_y + font_size / 2);
+            if(coin.value == -100) // Draw spike
+            {
+                ctx.drawImage(spike_image, pos_x, pos_y, scale_x * 2, scale_y * 2);
+            }
+            else // Draw as a coin
+            {
+                // Draw Circle
+                ctx.beginPath();
+                ctx.ellipse(pos_x, pos_y, scale_x, scale_y, 0, 0, 2 * Math.PI);
+                ctx.fillStyle = '#' + coin.color.toString(16);
+                ctx.fill();
+                ctx.lineWidth = XScaleToScreenSpace(1);
+                ctx.stroke();
+
+                var font_size = XScaleToScreenSpace(coin.size);
+                // Draw value
+                ctx.font = `${font_size}pt Arial`;
+                ctx.fillStyle = 'Black';
+                ctx.textAlign = 'center';
+                ctx.fillText(coin.value, pos_x, pos_y + font_size / 2);
+            }
         }
 }
 
